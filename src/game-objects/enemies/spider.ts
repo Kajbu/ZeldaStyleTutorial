@@ -1,5 +1,5 @@
 import { ASSET_KEYS, SPIDER_ANIMATION_KEYS } from "../../common/assets";
-import { Position } from "../../common/types";
+import { Direction, Position } from "../../common/types";
 import * as Phaser from 'phaser';
 import { InputComponent } from "../../components/input/input-component";
 import { IdleState } from "../../components/state-machine/states/character/idle-state";
@@ -8,6 +8,8 @@ import { MoveState } from "../../components/state-machine/states/character/move-
 import { ENEMY_SPIDER_SPEED } from "../../common/config";
 import { AnimationConfig } from "../../components/game-object/animation-component";
 import { CharacterGameObject } from "../common/character-game-object";
+import { DIRECTION } from "../../common/common";
+import { exhaustiveGuard } from "../../common/utils";
 
 export type SpiderConfig = {
     scene: Phaser.Scene;
@@ -43,6 +45,10 @@ export class Spider extends CharacterGameObject {
             inputComponent: new InputComponent(),
         });
 
+        this._directionComponent.callback = (direction: Direction) => {
+            this.#handleDirectionChange(direction)
+        }
+ 
         this._stateMachine.addState(new IdleState(this));
         this._stateMachine.addState(new MoveState(this));
         this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE); 
@@ -52,16 +58,52 @@ export class Spider extends CharacterGameObject {
             callback: this.#changeDirection,
             callbackScope: this,
             loop: false,
-        })
+        });
     }
 
+    #handleDirectionChange(direction: Direction): void {
+        switch (direction) {
+            case DIRECTION.DOWN:
+                this.setAngle(0);
+                break;
+                case DIRECTION.UP:
+                this.setAngle(180);
+                break;
+                    case DIRECTION.LEFT:
+                    this.setAngle(90);
+                    break;
+                        case DIRECTION.RIGHT:
+                        this.setAngle(270);
+                        break;
+                        default:
+                            exhaustiveGuard(direction);
+                
+        }
+    } // 1:57:21
+
     #changeDirection(): void {
+        this.controls.reset();
+
         this.scene.time.delayedCall(200, () => {
             const randomDirection = Phaser.Math.Between(0, 3);
             if (randomDirection === 0) {
-                // 1:51:45
-            }
-        })
+                this.controls.isUpDown = true;
+            } else if (randomDirection === 1) {
+                this.controls.isRightDown = true;
+            } else if (randomDirection === 2) {
+                this.controls.isDownDown = true;
+            } else {
+                this.controls.isLeftDown = true;
+            } 
+        
 
+        this.scene.time.addEvent({
+            delay: Phaser.Math.Between(500, 1500),
+            callback: this.#changeDirection,
+            callbackScope: this,
+            loop: false,
+        });
+
+        });
     }
 }
