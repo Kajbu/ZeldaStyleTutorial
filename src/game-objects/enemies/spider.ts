@@ -5,7 +5,7 @@ import { InputComponent } from "../../components/input/input-component";
 import { IdleState } from "../../components/state-machine/states/character/idle-state";
 import { CHARACTER_STATES } from "../../components/state-machine/states/character/character-states";
 import { MoveState } from "../../components/state-machine/states/character/move-state";
-import { ENEMY_SPIDER_SPEED } from "../../common/config";
+import { ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MAX, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_WAIT, ENEMY_SPIDER_SPEED } from "../../common/config";
 import { AnimationConfig } from "../../components/game-object/animation-component";
 import { CharacterGameObject } from "../common/character-game-object";
 import { DIRECTION } from "../../common/common";
@@ -43,6 +43,7 @@ export class Spider extends CharacterGameObject {
             animationConfig,
             speed: ENEMY_SPIDER_SPEED,
             inputComponent: new InputComponent(),
+            isInvulnerable: false,            
         });
 
         this._directionComponent.callback = (direction: Direction) => {
@@ -54,7 +55,7 @@ export class Spider extends CharacterGameObject {
         this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE); 
 
         this.scene.time.addEvent({
-            delay: Phaser.Math.Between(500, 1500),
+            delay: Phaser.Math.Between(ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MAX),
             callback: this.#changeDirection,
             callbackScope: this,
             loop: false,
@@ -79,12 +80,14 @@ export class Spider extends CharacterGameObject {
                             exhaustiveGuard(direction);
                 
         }
-    } // 1:57:21
+    } 
 
     #changeDirection(): void {
+        // reset existing enemy input
         this.controls.reset();
 
-        this.scene.time.delayedCall(200, () => {
+        // wait a small period of time and then choose a random direction to move
+        this.scene.time.delayedCall(ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_WAIT, () => {
             const randomDirection = Phaser.Math.Between(0, 3);
             if (randomDirection === 0) {
                 this.controls.isUpDown = true;
@@ -96,7 +99,7 @@ export class Spider extends CharacterGameObject {
                 this.controls.isLeftDown = true;
             } 
         
-
+        // set up event for next direction change
         this.scene.time.addEvent({
             delay: Phaser.Math.Between(500, 1500),
             callback: this.#changeDirection,
