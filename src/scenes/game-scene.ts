@@ -5,12 +5,13 @@ import { Player } from '../game-objects/player/player';
 import { KeyboardComponent } from '../components/input/keyboard-component';
 import { Spider } from '../game-objects/enemies/spider';
 import { Wisp } from '../game-objects/enemies/wisp';
+import { CharacterGameObject } from '../game-objects/common/character-game-object';
+import { DIRECTION } from '../common/common';
 
 export class GameScene extends Phaser.Scene {
   #controls!: KeyboardComponent;
   #player!: Player;
-  #spider!: Spider;
-  #wisp!: Wisp;
+  #enemyGroup!: Phaser.GameObjects.Group;
   
 
   constructor() {
@@ -26,7 +27,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.#controls = new KeyboardComponent(this.input.keyboard);
     this.add
-      .text(this.scale.width / 2, this.scale.height / 2, 'KajBu.com', { fontFamily: ASSET_KEYS.FONT_PRESS_START_2P })
+      .text(this.scale.width / 2, this.scale.height / 2, 'Happy Birdyday, \nFelix :)', { fontFamily: ASSET_KEYS.FONT_PRESS_START_2P,  align: 'center', })
       .setOrigin(0.5);
       this.#player = new Player({
         scene: this,
@@ -34,22 +35,36 @@ export class GameScene extends Phaser.Scene {
         controls: this.#controls,      
       });
 
-      this.#spider = new Spider({
+      this.#enemyGroup = this.add.group([
+        new Spider({
         scene: this,
         position: {x: this.scale.width / 2, y: this.scale.height / 2 + 50},   
-      });
-      this.#spider.setCollideWorldBounds(true);
+        }),
 
-
-      this.#wisp = new Wisp({
+        new Wisp({
         scene: this,
         position: { x: this.scale.width / 2, y: this.scale.height / 2 - 50 },
-      });
-      this.#wisp.setCollideWorldBounds(true);
+        }),
+      ], 
+      {
+        runChildUpdate: true,
+      },
+    );
+
+    this.#registerColliders();
   }
 
-  public update(): void {
-    this.#spider.update();
-  }
 
+  #registerColliders(): void {
+    this.#enemyGroup.getChildren().forEach((enemy) => {
+      const enemyGameObject = enemy as CharacterGameObject;
+      enemyGameObject.setCollideWorldBounds(true);
+    });
+
+    this.physics.add.overlap(this.#player, this.#enemyGroup, (player, enemy) => {
+      this.#player.hit(DIRECTION.DOWN);
+      const enemyGameObject = enemy as CharacterGameObject;
+      enemyGameObject.hit(this.#player.direction);
+    });
+  }
 }
