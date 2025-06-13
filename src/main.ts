@@ -29,3 +29,5 @@ const game = new Phaser.Game(gameConfig);
 game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene);
 game.scene.add(SCENE_KEYS.GAME_SCENE, GameScene);
 game.scene.start(SCENE_KEYS.PRELOAD_SCENE);
+
+// 2:26

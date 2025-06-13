@@ -10,6 +10,6 @@ export class SpeedComponent extends BaseGameObjectComponent {
     }
 
     get speed(): number {
-        return this.#speed
+        return this.#speed;
  }
 }

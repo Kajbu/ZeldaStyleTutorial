@@ -6,7 +6,10 @@ import { KeyboardComponent } from '../components/input/keyboard-component';
 import { Spider } from '../game-objects/enemies/spider';
 import { Wisp } from '../game-objects/enemies/wisp';
 import { CharacterGameObject } from '../game-objects/common/character-game-object';
-import { DIRECTION } from '../common/common';
+import { CHEST_STATE, DIRECTION } from '../common/common';
+import { PLAYER_START_MAX_HEALTH } from '../common/config';
+import { Pot } from '../game-objects/objects/pot';
+import { Chest } from '../game-objects/objects/chest';
 
 export class GameScene extends Phaser.Scene {
   #controls!: KeyboardComponent;
@@ -27,12 +30,14 @@ export class GameScene extends Phaser.Scene {
     }
     this.#controls = new KeyboardComponent(this.input.keyboard);
     this.add
-      .text(this.scale.width / 2, this.scale.height / 2, 'Happy Birdyday, \nFelix :)', { fontFamily: ASSET_KEYS.FONT_PRESS_START_2P,  align: 'center', })
+      .text(this.scale.width / 2, this.scale.height / 2, 'Herzlich\n Willkommen, \nBesucher :)', { fontFamily: ASSET_KEYS.FONT_PRESS_START_2P,  align: 'center', })
       .setOrigin(0.5);
       this.#player = new Player({
         scene: this,
         position: {x: this.scale.width / 2, y: this.scale.height / 2},
-        controls: this.#controls,      
+        controls: this.#controls,
+        maxLife: PLAYER_START_MAX_HEALTH,
+        currentLife: PLAYER_START_MAX_HEALTH,
       });
 
       this.#enemyGroup = this.add.group([
@@ -51,6 +56,24 @@ export class GameScene extends Phaser.Scene {
       },
     );
 
+    new Pot({
+      scene: this, 
+      position: { x: this.scale.width / 2 + 90, y: this.scale.height / 2 },
+    });
+
+    new Chest ({
+      scene: this,
+      position: { x: this.scale.width / 2 - 90, y: this.scale.height / 2},
+      requiresBossKey: false,
+    });
+
+    new Chest ({
+      scene: this,
+      position: { x: this.scale.width / 2 - 90, y: this.scale.height / 2 - 80},
+      requiresBossKey: true,
+    });
+
+
     this.#registerColliders();
   }
 
@@ -62,9 +85,12 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.physics.add.overlap(this.#player, this.#enemyGroup, (player, enemy) => {
-      this.#player.hit(DIRECTION.DOWN);
+      this.#player.hit(DIRECTION.DOWN, 1);
       const enemyGameObject = enemy as CharacterGameObject;
-      enemyGameObject.hit(this.#player.direction);
+      enemyGameObject.hit(this.#player.direction, 1);
     });
   }
 }
+
+
+// 2:53:00

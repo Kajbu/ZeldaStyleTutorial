@@ -10,8 +10,11 @@ export class IdleState extends BaseCharacterState{
     }
 
     public onEnter(): void {
+
+      // play idle animation based on game object direction
       this._gameObject.animationComponent.playAnimation(`IDLE_${this._gameObject.direction}`);
       
+      // reset game object velocity
       if (isArcadePhysicsBody(this._gameObject.body)) {
         this._gameObject.body.velocity.x = 0;
         this._gameObject.body.velocity.y = 0;

@@ -5,7 +5,7 @@ import { InputComponent } from "../../components/input/input-component";
 import { IdleState } from "../../components/state-machine/states/character/idle-state";
 import { CHARACTER_STATES } from "../../components/state-machine/states/character/character-states";
 import { MoveState } from "../../components/state-machine/states/character/move-state";
-import { ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MAX, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_WAIT, ENEMY_SPIDER_SPEED, ENEMY_WISP_PULSE_ANIMATION_DURATION, ENEMY_WISP_PULSE_ANIMATION_SCALE_X, ENEMY_WISP_PULSE_ANIMATION_SCALE_Y, ENEMY_WISP_SPEED } from "../../common/config";
+import { ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MAX, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_WAIT, ENEMY_SPIDER_SPEED, ENEMY_WISP_MAX_HEALTH, ENEMY_WISP_PULSE_ANIMATION_DURATION, ENEMY_WISP_PULSE_ANIMATION_SCALE_X, ENEMY_WISP_PULSE_ANIMATION_SCALE_Y, ENEMY_WISP_SPEED } from "../../common/config";
 import { AnimationConfig } from "../../components/game-object/animation-component";
 import { CharacterGameObject } from "../common/character-game-object";
 import { DIRECTION } from "../../common/common";
@@ -41,6 +41,7 @@ export class Wisp extends CharacterGameObject {
             speed: ENEMY_WISP_SPEED,
             inputComponent: new InputComponent(),
             isInvulnerable: true,
+            maxLife: ENEMY_WISP_MAX_HEALTH
         });
 
         // add state machine
